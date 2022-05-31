@@ -1,57 +1,96 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-vuex" target="_blank" rel="noopener">vuex</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="wrapper">
+    <Button @click="handleClickOnEnterCHK">OnEnterCHK不传参</Button>
+    <Button @click="handleClickOnLogInt">OnLogInt 数字</Button>
+    <Button @click="handleClickOnLogString">OnLogString 字符串</Button>
+    <Button @click="handleClickOnLogObject">OnLogObject 对象</Button>
+    
+    <div class="wrapper">
+      <iframe ref="unityIframe" id="unityDom" height="100%" width="100%" src="/unity3D/unity.html" frameborder="0"></iframe>
+    </div>
   </div>
-</template>
 
+</template>
 <script>
+
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
+  
+  data() {
+    return {
+
+    }
+
+  },
+  mounted() {
+    window.addEventListener('message', this.getUnityData, false);
+
+    //Unity调用vue事件
+    this.$refs.unityIframe.contentWindow.OnClickNone = function () {
+      alert(666)
+    }
+    //Unity调用vue事件
+    this.$refs.unityIframe.contentWindow.OnClickParam = function (msg) {
+      alert(msg)
+    }
+  },
+  methods: {
+    //获取Unity的数据
+    getUnityData(e) {
+      // console.log(666, e.data)
+      // debugger
+    },
+    //发送给unity的消息
+    handleClick() {
+      // 直接调用iframe里的函数方法
+      // this.$refs.unityIframe.contentWindow.subFunction(122344)
+
+      //监听形式 
+      // this.$refs.unityIframe.contentWindow.postMessage('6666666666','*')
+
+    },
+    //事件1
+    handleClickOnEnterCHK() {
+      //获取iframe属性
+      this.$refs.unityIframe.contentWindow.myGameInstance.SendMessage('Interaction', 'OnEnterCHK')
+    },
+    //事件2
+    handleClickOnLogInt() {
+      //获取iframe属性
+      this.$refs.unityIframe.contentWindow.myGameInstance.SendMessage('Interaction', 'OnLogInt', 5);
+    },
+    //事件3
+    handleClickOnLogString() {
+      //获取iframe属性
+      this.$refs.unityIframe.contentWindow.myGameInstance.SendMessage('Interaction', 'OnLogString', 'LogStr');
+    },
+    //事件4
+    handleClickOnLogObject() {
+      //获取iframe属性
+      this.$refs.unityIframe.contentWindow.myGameInstance.SendMessage('Interaction', 'OnLogObject', JSON.stringify({ name: 1, age: 2 }))
+    }
+
+  },
+  beforeDestroy() { // 在页面销毁前去掉监听，防止内存泄露
+    window.removeEventListener('message')
+  },
+  created() {
+
+  },
 }
 </script>
+ 
+<style >
+.wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+
 }
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
+  #unityDom {
+    position: absolute;
+    left: 0;
+    border: 1px solid #ccc;
+  }
 </style>
